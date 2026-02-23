@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 
-// Configurar variables de entorno
+// Variables de entorno
 dotenv.config();
 
 const app = express();
@@ -10,14 +10,14 @@ const port = process.env.PORT || 3000;
 // Middleware fundamental para poder recibir datos en formato JSON en los POST
 app.use(express.json());
 
-// Listas locales en memoria para usar con los métodos POST
+// Listas locales para usar con los métodos POST
 const listasUsuario = {
     favoritas: [],
     porVer: [],
     calificaciones: {}
 };
 
-// Función para sanitizar la entrada
+// Sanitizar la entrada
 const sanitizarTitulo = (titulo) => {
     if (!titulo) return "";
     return titulo
@@ -36,9 +36,18 @@ app.get('/health', (req, res) => {
     res.status(200).json({ estado: 'OK', mensaje: 'La API está corriendo al 100%' });
 });
 
-// GET 2: Búsqueda dinámica en la API de TVMaze
-app.get('/api/serie/:nombre', async (req, res) => {
-    const tituloBuscado = sanitizarTitulo(req.params.nombre);
+// GET 2: Búsqueda en la API de TVMaze
+app.get('/api/serie', async (req, res) => {
+
+    const nombreSerie = req.query.nombre;
+
+    if (!nombreSerie) {
+        return res.status(400).json({ 
+            error: "Debes incluir el parámetro de búsqueda. Ejemplo: /api/serie?nombre=Chuck" 
+        });
+    }
+    
+    const tituloBuscado = sanitizarTitulo(nombreSerie);
 
     try {
         const url = `https://api.tvmaze.com/singlesearch/shows?q=${encodeURIComponent(tituloBuscado)}&embed=cast`;
@@ -50,13 +59,13 @@ app.get('/api/serie/:nombre', async (req, res) => {
 
         const data = await respuesta.json();
 
-        // Extraer los 3 actores principales
+        // 3 actores principales
         let actoresPrincipales = [];
         if (data._embedded && data._embedded.cast) {
             actoresPrincipales = data._embedded.cast.slice(0, 3).map(actor => actor.person.name);
         }
 
-        // Construir el objeto de respuesta
+        // Respuesta
         const datosSerie = {
             busqueda_original: req.params.nombre,
             titulo_sanitizado: tituloBuscado,
