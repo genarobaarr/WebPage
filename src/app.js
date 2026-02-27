@@ -164,6 +164,20 @@ app.put('/api/por-ver', (req, res) => {
     res.status(200).json({ mensaje: "Lista por ver reemplazada", por_ver: listasUsuario.porVer });
 });
 
+// PUT 3: Reemplazar TODAS las calificaciones de una serie
+app.put('/api/calificaciones/:nombre', (req, res) => {
+    const titulo = sanitizarTitulo(req.params.nombre);
+    const { nuevasCalificaciones } = req.body;
+    
+    if (!Array.isArray(nuevasCalificaciones)) return res.status(400).json({ error: "Envía arreglo 'nuevasCalificaciones'." });
+    
+    listasUsuario.calificaciones[titulo] = nuevasCalificaciones;
+    res.status(200).json({
+    mensaje: `Calificaciones de ${titulo} reemplazadas`,
+    calificaciones: listasUsuario.calificaciones[titulo]
+});
+});
+
 // ==========================================
 // MÉTODOS PATCH (Modificación parcial)
 // ==========================================
@@ -194,6 +208,24 @@ app.patch('/api/por-ver/:nombre', (req, res) => {
     res.status(200).json({ mensaje: "Título actualizado", por_ver: listasUsuario.porVer });
 });
 
+// PATCH 3: Modificar solo la última calificación dada a una serie
+app.patch('/api/calificaciones/:nombre', (req, res) => {
+    const titulo = sanitizarTitulo(req.params.nombre);
+    const { ultimaCalificacion } = req.body;
+    
+    if (!listasUsuario.calificaciones[titulo] || listasUsuario.calificaciones[titulo].length === 0) {
+        return res.status(404).json({ error: "Esta serie no tiene calificaciones previas." });
+    }
+    if (typeof ultimaCalificacion !== 'number' || ultimaCalificacion < 1 || ultimaCalificacion > 10) {
+        return res.status(400).json({ error: "Envía una 'ultimaCalificacion' válida (1-10)." });
+    }
+
+    const indexUltima = listasUsuario.calificaciones[titulo].length - 1;
+    listasUsuario.calificaciones[titulo][indexUltima] = ultimaCalificacion;
+    
+    res.status(200).json({ mensaje: "Última calificación actualizada", calificaciones: listasUsuario.calificaciones[titulo] });
+});
+
 // ==========================================
 // MÉTODOS DELETE (Eliminación)
 // ==========================================
@@ -218,6 +250,18 @@ app.delete('/api/por-ver/:nombre', (req, res) => {
     
     listasUsuario.porVer.splice(index, 1);
     res.status(200).json({ mensaje: `${titulo} eliminada de por ver`, por_ver: listasUsuario.porVer });
+});
+
+// DELETE 3: Eliminar todo el historial de calificaciones de una serie
+app.delete('/api/calificaciones/:nombre', (req, res) => {
+    const titulo = sanitizarTitulo(req.params.nombre);
+    
+    if (!listasUsuario.calificaciones[titulo]) return res.status(404).json({ error: "No hay calificaciones para esta serie." });
+    
+    delete listasUsuario.calificaciones[titulo];
+   res.status(200).json({
+    mensaje: `Se eliminaron las calificaciones de ${titulo}`
+});
 });
 
 // Iniciar el servidor
