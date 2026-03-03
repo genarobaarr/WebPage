@@ -7,10 +7,13 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware fundamental para poder recibir datos en formato JSON en los POST
+// Middleware para recibir datos en formato JSON en los POST
 app.use(express.json());
 
-// Listas locales para usar con los métodos POST
+const cors = require('cors');
+app.use(cors()); // Permite conectar a el API
+
+// Listas para usar con los métodos POST
 const listasUsuario = {
     favoritas: [],
     porVer: [],
@@ -83,7 +86,7 @@ app.get('/api/serie', async (req, res) => {
     }
 });
 
-// GET 3: Ver el estado completo de todas las listas locales
+// GET 3: Ver el estado completo de todas las listas
 app.get('/api/listas', (req, res) => {
     
     res.status(200).json({
@@ -146,6 +149,7 @@ app.post('/api/calificar', (req, res) => {
 // ==========================================
 // MÉTODOS PUT (Reemplazar todo)
 // ==========================================
+
 // PUT 1: Reemplazar TODA la lista de favoritas
 app.put('/api/favoritas', (req, res) => {
     const { nuevasFavoritas } = req.body;
@@ -182,7 +186,7 @@ app.put('/api/calificaciones/:nombre', (req, res) => {
 // MÉTODOS PATCH (Modificación parcial)
 // ==========================================
 
-// PATCH 1: Corregir el nombre de una serie en favoritas (ej: si lo escribiste mal)
+// PATCH 1: Corregir el nombre de una serie en favoritas
 app.patch('/api/favoritas/:nombre', (req, res) => {
     const tituloViejo = sanitizarTitulo(req.params.nombre);
     const tituloNuevo = sanitizarTitulo(req.body.nuevoTitulo);
