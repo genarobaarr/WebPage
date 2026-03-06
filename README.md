@@ -50,16 +50,16 @@ curl http://localhost:3000/api/listas
 
 #### Evidencia de docker build
 
-![Evidencia de docker build](images\docker_evidence_build.png)
+<img src="images\docker_evidence_build.png" width=1000>
 
 #### Evidencia de docker run
 
-![Evidencia de docker run](images\docker_evidence_run.png)
-![Evidencia de docker run en Docker Desktop](images\docker_evidence_runDesktop.png)
+<img src="images\docker_evidence_run.png" width=1000>
+<img src="images\docker_evidence_runDesktop.png" width=1000>
 
 #### Evidencia de docker ps
 
-![Evidencia de docker ps](images\docker_evidence_ps.png)
+<img src="images\docker_evidence_ps.png" width=1000>
 
 #### Evidencia de requests
 
